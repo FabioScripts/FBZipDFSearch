@@ -1,0 +1,73 @@
+#!/bin/bash
+
+clear
+
+mkdir -p Extraido
+
+# https://stackoverflow.com/questions/908679/unzip-specific-extension-only
+# https://unix.stackexchange.com/questions/422392/delete-all-folders-inside-a-folder-except-one-with-specific-name
+
+for i in `ls *zip`; do 
+  unzip -l $i | grep ".pdf";
+done > Extraido/Lista
+
+sleep 1
+
+unoconv -f pdf Extraido/Lista Extraido
+
+sleep 1
+
+rm Extraido/Lista
+
+sleep 2
+
+clear
+
+for file in *.zip ; do
+    newfile=$(echo "${file}" | sed -e 's/^files.//' -e 's/.zip$//')
+    echo ":${newfile}:"
+    mkdir tmp
+    rm -rf "${newfile}"
+    mkdir "${newfile}"
+    cp "${newfile}.zip" tmp
+    cd tmp
+    unzip "${newfile}.zip"
+    find . -name '*.pdf' -exec cp {} "../${newfile}" ';'
+    cd ..
+    rm -rf tmp
+done
+
+sleep 1
+
+clear
+
+sleep 1
+
+mkdir -p Extraido/Zips/
+mkdir -p Extraido/PDF/
+
+find -name "*.pdf" -exec mv {} Extraido/PDF/ \;
+find -name "*.zip" -exec mv {} Extraido/Zips/ \;
+
+mv Extraido/PDF/Lista.pdf Extraido/
+
+
+sleep 1
+
+clear
+
+sleep 1
+
+cleaner() {
+find . -mindepth 1 ! -regex '^./Extraido\(/.*\)?' -delete
+}
+
+cleaner
+
+clear
+
+sleep 1
+
+tree | grep ".pdf"
+
+
